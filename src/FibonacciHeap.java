@@ -87,8 +87,43 @@ public class FibonacciHeap
      */
     public int decreaseKey(HeapNode x, int diff)
     {
-        return 46; // should be replaced by student code
+        int cutsCnt = 0;
+
+        x.key -= diff;
+
+        if (x.key < this.min.key)
+            this.min = x;
+
+        if (x.parent == null) {
+            return cutsCnt;
+        }
+
+        if (x.key < x.parent.key) {
+
+            this.cut(x);
+
+
+            x.parent.numChildCuts++;
+        }
+
+
+        return cutsCnt;
     }
+
+    public int cut(HeapNode node) {
+
+        HeapNode p = node.parent;
+        node.parent = null;
+
+        if (p.child == node) {
+            if (node.next != null) {
+                p.child = node.next;
+            }
+        }
+
+        return 0;
+    }
+
 
     /**
      * Delete the x from the heap.
@@ -151,6 +186,7 @@ public class FibonacciHeap
         public HeapNode prev;
         public HeapNode parent;
         public int rank;
+        public int numChildCuts = 0;
 
         public HeapNode(int key, String info) {
             this.key = key;
