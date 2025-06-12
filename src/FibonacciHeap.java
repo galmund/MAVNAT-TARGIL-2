@@ -87,6 +87,7 @@ public class FibonacciHeap
      */
     public int decreaseKey(HeapNode x, int diff)
     {
+
         int cutsCnt = 0;
 
         x.key -= diff;
@@ -98,30 +99,55 @@ public class FibonacciHeap
             return cutsCnt;
         }
 
+        HeapNode curr_parent = x.parent;
+
         if (x.key < x.parent.key) {
-
-            this.cut(x);
-
-
-            x.parent.numChildCuts++;
+            cutsCnt += this.cut(x);
         }
 
+        while (curr_parent != null && curr_parent.numChildCuts >= this.c) {
+            HeapNode next_parent = curr_parent.parent;
+            cutsCnt += this.cut(curr_parent);
+            curr_parent = next_parent;
+        }
 
         return cutsCnt;
     }
 
     public int cut(HeapNode node) {
 
-        HeapNode p = node.parent;
-        node.parent = null;
-
-        if (p.child == node) {
-            if (node.next != null) {
-                p.child = node.next;
-            }
+        HeapNode parent = node.parent;
+        if (parent == null) {
+            return 0;
         }
 
-        return 0;
+        node.parent.numChildCuts++;
+
+        boolean singleChild = (node.next == node);
+
+        if (!singleChild) {
+            node.prev.next = node.next;
+            node.next.prev = node.prev;
+        }
+
+        if (parent.child == node) {
+            parent.child = singleChild ? null : node.next;
+        }
+
+        parent.rank--;
+
+        node.parent = null;
+        node.next = this.firstRoot;
+        node.prev = this.firstRoot.prev;
+        this.firstRoot.prev.next = node;
+        this.firstRoot.prev = node;
+        this.firstRoot = node;
+
+        this.numTrees++;
+        this.totalCuts++;
+        node.numChildCuts=0;
+
+        return 1;
     }
 
 
@@ -163,6 +189,8 @@ public class FibonacciHeap
 
         this.size += heap2.size;
         this.numTrees += heap2.numTrees;
+        this.totalCuts += heap2.totalCuts;
+        this.totalLinks += heap2.totalLinks;
     }
 
     /**
