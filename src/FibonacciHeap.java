@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -36,29 +37,37 @@ public class FibonacciHeap
      * Insert (key,info) into the heap and return the newly generated HeapNode.
      */
     public HeapNode insert(int key, String info) {
-        this.size += 1;
-        this.numTrees += 1;
+
 
         HeapNode newHeapNode = new HeapNode(key, info);
 
-        if (this.size == 1) {
-            this.firstRoot = newHeapNode;
-            this.min = newHeapNode;
-            newHeapNode.next = newHeapNode.prev = newHeapNode;
-            return newHeapNode;
-        }
-
-        newHeapNode.next = this.firstRoot;
-        newHeapNode.prev = this.firstRoot.prev;
-        this.firstRoot.prev.next = newHeapNode;
-        this.firstRoot.prev = newHeapNode;
-
-        this.firstRoot = newHeapNode;
-
-        if (this.min.key > key)
-            this.min = newHeapNode;
+        this.insertRoot(newHeapNode);
 
         return newHeapNode;
+    }
+
+    public void insertRoot(HeapNode heapNode) {
+        this.size++;
+        this.numTrees++;
+
+        if (this.size == 1) {
+            this.firstRoot = heapNode;
+            this.min = heapNode;
+            heapNode.next = heapNode.prev = heapNode;
+            return;
+        }
+
+        heapNode.next = this.firstRoot;
+        heapNode.prev = this.firstRoot.prev;
+        this.firstRoot.prev.next = heapNode;
+        this.firstRoot.prev = heapNode;
+
+        this.firstRoot = heapNode;
+
+        if (this.min.key > heapNode.key)
+            this.min = heapNode;
+
+
     }
 
     /**
@@ -74,7 +83,44 @@ public class FibonacciHeap
      */
     public int deleteMin()
     {
-        return 46; // should be replaced by student code
+        ArrayList<HeapNode> roots = new ArrayList<>();
+        int cntLinks = 0;
+        HeapNode minNode = this.min;
+
+
+        if (this.size == 0) {
+            return cntLinks;
+        }
+
+        if (minNode.child != null) {
+            HeapNode curr = minNode.child;
+            do {
+                HeapNode nextNode = curr.next;
+                curr.parent = null;
+                this.insertRoot(curr);
+                curr = nextNode;
+            } while (curr != minNode.child);
+        }
+
+        if (minNode.next == minNode) {
+            this.firstRoot = null;
+            this.min = null;
+            return cntLinks;
+        }
+        else {
+            minNode.prev.next = minNode.next;
+            minNode.next.next = minNode.prev;
+            if (minNode == this.firstRoot) {
+                this.firstRoot = minNode.next;
+            }
+        }
+        numTrees--;
+        size--;
+
+
+
+
+        return 0;
 
     }
 
