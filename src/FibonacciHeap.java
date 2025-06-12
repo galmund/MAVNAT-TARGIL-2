@@ -44,6 +44,7 @@ public class FibonacciHeap
         if (this.size == 1) {
             this.firstRoot = newHeapNode;
             this.min = newHeapNode;
+            newHeapNode.next = newHeapNode.prev = newHeapNode;
             return newHeapNode;
         }
 
@@ -121,7 +122,7 @@ public class FibonacciHeap
             return 0;
         }
 
-        node.parent.numChildCuts++;
+        parent.numChildCuts++;
 
         boolean singleChild = (node.next == node);
 
@@ -177,6 +178,24 @@ public class FibonacciHeap
      * Meld the heap with heap2
      */
     public void meld(FibonacciHeap heap2) {
+        if (heap2 == null) {
+            return;
+        }
+        this.totalCuts += heap2.totalCuts;
+        this.totalLinks += heap2.totalLinks;
+
+        if(heap2.size == 0) {
+            return;
+        }
+
+        if (this.size == 0) {
+            this.min = heap2.min;
+            this.firstRoot = heap2.firstRoot;
+            this.size = heap2.size;
+            this.numTrees = heap2.numTrees;
+            return;
+        }
+
         if (this.min.key > heap2.min.key)
             this.min = heap2.min;
 
@@ -189,8 +208,6 @@ public class FibonacciHeap
 
         this.size += heap2.size;
         this.numTrees += heap2.numTrees;
-        this.totalCuts += heap2.totalCuts;
-        this.totalLinks += heap2.totalLinks;
     }
 
     /**
