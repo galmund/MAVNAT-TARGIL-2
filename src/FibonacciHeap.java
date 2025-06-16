@@ -133,26 +133,21 @@ public class FibonacciHeap
                 HeapNode curr2 = (HeapNode) buckets.get(currRank);
                 while (curr2 != null) {
                     curr = this.link(curr, curr2);
-                    this.totalLinks++;
+                    cntLinks++;
                 }
             }
 
         }
 
-
-
-
-
-
-
-
+// צריך להחזיר את הroots מהסלים לרשימת השורשים
+        //
 
 
 
         //look for the new minNode
 
-
-        return 0;
+        this.totalLinks += cntLinks;
+        return cntLinks;
 
     }
 
