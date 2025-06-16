@@ -1,9 +1,5 @@
-import java.util.ArrayList;
-import java.util.Map;
-
 /**
  * FibonacciHeap
- *
  * An implementation of Fibonacci heap over positive integers.
  *
  */
@@ -67,7 +63,6 @@ public class FibonacciHeap
         if (this.min.key > heapNode.key)
             this.min = heapNode;
 
-
     }
 
     /**
@@ -83,13 +78,19 @@ public class FibonacciHeap
      */
     public int deleteMin()
     {
-        ArrayList<HeapNode> roots = new ArrayList<>();
         int cntLinks = 0;
         HeapNode minNode = this.min;
 
-
         if (this.size == 0) {
             return cntLinks;
+        }
+
+        int capacity = (int) Math.floor(Math.log(this.size) / Math.log(2)) +1;
+
+        java.util.ArrayList<Object> buckets = new java.util.ArrayList<>(capacity);
+
+        for (int i = 0; i < capacity; i++) {
+            buckets.add(null);
         }
 
         if (minNode.child != null) {
@@ -114,14 +115,95 @@ public class FibonacciHeap
                 this.firstRoot = minNode.next;
             }
         }
-        numTrees--;
-        size--;
+
+        this.numTrees--;
+        this.size--;
+
+        // the min was deleted and his sons are in the roots-list
+        // now we need to fix the heap.
+
+        while (this.firstRoot != null) {
+            HeapNode curr = this.firstRoot;
+            int currRank = curr.rank;
+            this.removeFirstRoot();
+            if (buckets.get(currRank) == null) {
+                buckets.add(currRank, curr);
+            }
+            else {
+                HeapNode curr2 = (HeapNode) buckets.get(currRank);
+                while (curr2 != null) {
+                    curr = this.link(curr, curr2);
+                    this.totalLinks++;
+                }
+            }
+
+        }
 
 
+
+
+
+
+
+
+
+
+
+        //look for the new minNode
 
 
         return 0;
 
+    }
+
+    private HeapNode link(HeapNode a, HeapNode b) {
+
+        HeapNode root, child;
+        if (a.key <= b.key) {
+            root  = a;
+            child = b;
+        } else {
+            root  = b;
+            child = a;
+        }
+
+        child.parent = root;
+        child.numChildCuts = 0;
+
+        child.next = child.prev = child;
+
+        if (root.child == null) {
+            root.child = child;
+        } else {
+            child.next = root.child;
+            child.prev = root.child.prev;
+            root.child.prev.next = child;
+            root.child.prev = child;
+        }
+
+        root.rank++;
+
+        return root;
+    }
+
+    private void removeFirstRoot() {
+
+        if (this.firstRoot == null) {
+            return;
+        }
+
+        HeapNode removed = firstRoot;
+
+        if (removed.next == removed) {
+            this.firstRoot = null;
+        } else {
+            removed.prev.next = removed.next;
+            removed.next.prev = removed.prev;
+            this.firstRoot = removed.next;
+        }
+
+        removed.next = removed.prev = removed;
+        this.numTrees--;
     }
 
     /**
